@@ -1,23 +1,19 @@
+import requests
+from bs4 import BeautifulSoup
 from flask import *
+from flask_cors import CORS
+
 import json
 app = Flask(__name__)
-all = open("all.txt", "r", encoding="utf8")
-y = all.read()
-y = y.split("\n")
-d = "not found mikud"
-json_dump={'error':"not insert text"}
-
+CORS(app)
 @app.route('/', methods=['GET'])
-def index(mikud="not insert mikud"):
-    mikud = str(request.args.get('mikud'))
-    for i in range(len(y)):
-        if mikud in y[i]:
-            d = y[i]
-            json_dump={'city':d.split(',')[0],'street':d.split(',')[1],'numhouse':d.split(',')[2],'mikud':d.split(',')[3]}
-            break
-        else:
-            pass
+def index(city="not insert city"):
+    city = str(request.args.get('city'))
+    url=f"https://www.google.com/search?q=wether in {city}"
+    r=requests.get(url)
+    s=BeautifulSoup(r.text,"html.parser")
+    wether=s.find("div",class_="BNeawe").text
+    info=s.find("div",class_="BNeawe tAd8D AP7Wnd").text
+    json_dump={"city":city,"wether":wether,"info":info.split("\n")[1]}
     return json_dump
-
-
 app.run(host='0.0.0.0', port=80)
